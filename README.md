@@ -1,6 +1,6 @@
 # QGIS Development Tools
 
-Repository for Python processing scripts and graphical models.
+Repository for Python processing scripts, graphical models, and QGIS style files.
 
 ## Usage
 1. Open QGIS.
