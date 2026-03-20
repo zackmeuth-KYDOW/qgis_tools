@@ -13,7 +13,7 @@ import json
 import os
 
 class NWIFetcher(QgsProcessingAlgorithm):
-    INPUT_AA = 'INPUT_AA'
+    INPUT_AOI = 'INPUT_AOI'
     OUTPUT_NWI = 'OUTPUT_NWI'
 
     def name(self): return 'nwi_fetcher'
@@ -23,19 +23,19 @@ class NWIFetcher(QgsProcessingAlgorithm):
     def createInstance(self): return NWIFetcher()
 
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterFeatureSource(self.INPUT_AA, 'Assessment Area (AA) Polygon'))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.INPUT_AOI, 'Area of Interest (AOI) Polygon'))
         self.addParameter(QgsProcessingParameterVectorDestination(self.OUTPUT_NWI, 'Output NWI Vectors'))
 
     def processAlgorithm(self, parameters, context, feedback):
-        aa_source = self.parameterAsSource(parameters, self.INPUT_AA, context)
+        aoi_source = self.parameterAsSource(parameters, self.INPUT_AOI, context)
         output_path = self.parameterAsOutputLayer(parameters, self.OUTPUT_NWI, context)
 
         # --- MINOR EDIT 1: Safely Transform BBox to WGS84 for the Server ---
-        crs_aa = aa_source.sourceCrs()
+        crs_aoi = aoi_source.sourceCrs()
         crs_wgs84 = QgsCoordinateReferenceSystem("EPSG:4326")
-        tr_to_wgs = QgsCoordinateTransform(crs_aa, crs_wgs84, context.project())
+        tr_to_wgs = QgsCoordinateTransform(crs_aoi, crs_wgs84, context.project())
 
-        features = aa_source.getFeatures()
+        features = aoi_source.getFeatures()
         feature = next(features)
         
         geom_wgs = QgsGeometry(feature.geometry())
@@ -90,7 +90,7 @@ class NWIFetcher(QgsProcessingAlgorithm):
             # This safely converts the text to a GPKG and projects it back to your local CRS (EPSG:3089)
             processing.run("native:reprojectlayer", {
                 'INPUT': temp_geojson,
-                'TARGET_CRS': crs_aa,
+                'TARGET_CRS': crs_aoi,
                 'OUTPUT': output_path
             }, context=context, feedback=feedback)
             

@@ -8,7 +8,7 @@ from qgis import processing
 import urllib.parse
 
 class DemFetcher(QgsProcessingAlgorithm):
-    INPUT_AA = 'INPUT_AA'
+    INPUT_AOI = 'INPUT_AOI'
     BUFFER_DIST = 'BUFFER_DIST'
     SERVICE_URL = 'SERVICE_URL'
     OUTPUT_RAW = 'OUTPUT_RAW'
@@ -20,20 +20,20 @@ class DemFetcher(QgsProcessingAlgorithm):
     def createInstance(self): return DemFetcher()
 
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterFeatureSource(self.INPUT_AA, 'Assessment Area (AA) Polygon'))
+        self.addParameter(QgsProcessingParameterFeatureSource(self.INPUT_AOI, 'Area of Interest (AOI) Polygon'))
         self.addParameter(QgsProcessingParameterNumber(self.BUFFER_DIST, 'Buffer Distance (Feet)', defaultValue=50))
         self.addParameter(QgsProcessingParameterString(self.SERVICE_URL, 'ArcGIS ImageServer URL', 
                           defaultValue='https://kyraster.ky.gov/arcgis/rest/services/ElevationServices/Ky_DEM_KYAPED_2FT_Phase2/ImageServer'))
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_RAW, 'Output Raw GeoTIFF'))
 
     def processAlgorithm(self, parameters, context, feedback):
-        aa_source = self.parameterAsSource(parameters, self.INPUT_AA, context)
+        aoi_source = self.parameterAsSource(parameters, self.INPUT_AOI, context)
         buffer_dist = self.parameterAsDouble(parameters, self.BUFFER_DIST, context)
         base_url = self.parameterAsString(parameters, self.SERVICE_URL, context)
         output_path = self.parameterAsOutputLayer(parameters, self.OUTPUT_RAW, context)
 
         # 1. Calculate Geometry (Buffer & Bounding Box)
-        features = aa_source.getFeatures()
+        features = aoi_source.getFeatures()
         feature = next(features)
         geometry = feature.geometry()
         
