@@ -3,7 +3,10 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterNumber,
                        QgsProcessingParameterString,
-                       QgsProcessingParameterRasterDestination)
+                       QgsProcessingParameterRasterDestination,
+                       QgsCoordinateReferenceSystem,
+                       QgsCoordinateTransform,
+                       QgsGeometry)
 from qgis import processing
 import urllib.parse
 
@@ -33,11 +36,17 @@ class DemFetcher(QgsProcessingAlgorithm):
         output_path = self.parameterAsOutputLayer(parameters, self.OUTPUT_RAW, context)
 
         # 1. Calculate Geometry (Buffer & Bounding Box)
+        crs_aoi = aoi_source.sourceCrs()
+        crs_3089 = QgsCoordinateReferenceSystem("EPSG:3089")
+        transform = QgsCoordinateTransform(crs_aoi, crs_3089, context.project())
+
         features = aoi_source.getFeatures()
         feature = next(features)
-        geometry = feature.geometry()
         
-        buffered_geom = geometry.buffer(buffer_dist, 5)
+        geom_3089 = QgsGeometry(feature.geometry())
+        geom_3089.transform(transform)
+        
+        buffered_geom = geom_3089.buffer(buffer_dist, 5)
         rect = buffered_geom.boundingBox()
         
         xmin, ymin, xmax, ymax = rect.xMinimum(), rect.yMinimum(), rect.xMaximum(), rect.yMaximum()
