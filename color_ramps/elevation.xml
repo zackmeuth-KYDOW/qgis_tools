@@ -1,0 +1,16 @@
+<!DOCTYPE qgis_style>
+<qgis_style version="2">
+  <symbols/>
+  <colorramps>
+    <colorramp type="cpt-city" tags="Tim Styles" name="Elevation Ramp">
+      <prop v="0" k="inverted"/>
+      <prop v="cpt-city" k="rampType"/>
+      <prop v="ncl/topo_15lev" k="schemeName"/>
+      <prop v="" k="variantName"/>
+    </colorramp>
+  </colorramps>
+  <textformats/>
+  <labelsettings/>
+  <legendpatchshapes/>
+  <symbols3d/>
+</qgis_style>
